@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório DEOP | Energisa Sergipe</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background: #f3f4f6; color: #374151; }
+        header {
+            background: linear-gradient(135deg, #0FABCC 0%, #D3D722 100%);
+            display: flex;
+            align-items: center;
+            padding: 18px 28px;
+            gap: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        header .titles { flex: 1; text-align: center; }
+        header h1 { color: #fff; font-size: 1.5rem; font-weight: 700; }
+        header h2 { color: #fff; font-size: 1rem; opacity: 0.95; font-weight: 500; }
+        header .date { color: #fff; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab { background: #fff; color: #374151; padding: 12px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,0.05); border: none; transition: 0.3s; }
+        .tab.active { background: linear-gradient(135deg, #0FABCC 0%, #D3D722 100%); color: #fff; }
+        .filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; align-items: center; }
+        .filter-btn { background: #fff; border: 2px solid #e5e7eb; padding: 8px 16px; border-radius: 20px; font-weight: 600; cursor: pointer; color: #374151; transition: 0.2s; }
+        .filter-btn.active { background: #0FABCC; color: #fff; border-color: #0FABCC; }
+        .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 20px; }
+        .kpi { background: #fff; border-radius: 12px; padding: 20px; border-left: 5px solid #0FABCC; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .kpi .label { font-size: 12px; text-transform: uppercase; color: #6b7280; font-weight: 700; }
+        .kpi .value { font-size: 28px; font-weight: 800; color: #111827; margin-top: 5px; }
+        .card { background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        .card h3 { font-size: 16px; border-bottom: 2px solid #f3f4f6; padding-bottom: 12px; margin-bottom: 16px; color: #111827; font-weight: 700; }
+        .chart-wrap { position: relative; height: 320px; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 10px; }
+        th { background: #f9fafb; padding: 12px; text-align: left; border: 1px solid #e5e7eb; font-weight: 700; color: #374151; }
+        td { padding: 12px; border: 1px solid #e5e7eb; }
+        .accordion-item { margin-bottom: 12px; border-radius: 10px; overflow: hidden; border: 1px solid #e5e7eb; }
+        .accordion-header { background: linear-gradient(135deg, #0FABCC 0%, #D3D722 100%); color: #fff; padding: 14px 20px; cursor: pointer; font-weight: 600; display: flex; justify-content: space-between; align-items: center; }
+        .accordion-body { display: none; padding: 20px; background: #fff; }
+        .accordion-item.open .accordion-body { display: block; }
+        .dual-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .col-title { font-size: 14px; font-weight: 800; color: #0FABCC; margin-bottom: 12px; text-transform: uppercase; border-bottom: 2px solid #f3f4f6; padding-bottom: 6px; }
+        .nom-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .nom-cell { background: #f9fafb; border-radius: 8px; padding: 12px; border-left: 4px solid #0FABCC; }
+        .nom-cell .code { font-weight: 800; color: #111827; font-size: 14px; }
+        .nom-cell .tel { font-size: 12px; color: #4b5563; margin-top: 6px; line-height: 1.5; }
+        .util-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+        .util-box { background: #f9fafb; padding: 15px; border-radius: 10px; border: 1px solid #e5e7eb; text-align: center; }
+        .util-box .nome { font-size: 11px; font-weight: 800; color: #6b7280; text-transform: uppercase; }
+        .util-box .fone { font-size: 15px; font-weight: 800; color: #0FABCC; margin-top: 6px; }
+        footer { text-align: right; padding: 30px; color: #9ca3af; font-size: 13px; font-weight: 600; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        @media (max-width: 768px) { .kpis { grid-template-columns: repeat(2, 1fr); } .dual-grid { grid-template-columns: 1fr; } header { flex-direction: column; text-align: center; } }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="titles">
+            <h1>Relatório Diário — Equipes de Campo</h1>
+            <h2>DEOP | Energisa Sergipe</h2>
+        </div>
+        <div class="date">8 e 9 de Agosto/2026</div>
+    </header>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" data-tab="overview">Visão Geral</button>
+            <button class="tab" data-tab="teams">Equipes por Dia</button>
+            <button class="tab" data-tab="areas">Demais Áreas</button>
+        </div>
+
+        <div class="filters" id="filter-bar">
+            <button class="filter-btn active" data-day="all">Todos</button>
+            <button class="filter-btn" data-day="8">8 (Sáb)</button>
+            <button class="filter-btn" data-day="9">9 (Dom)</button>
+        </div>
+
+        <div class="tab-content active" id="tab-overview">
+            <div class="kpis">
+                <div class="kpi"><div class="label">Total Equipes</div><div class="value" id="kpi-total">0</div></div>
+                <div class="kpi"><div class="label">Regionais</div><div class="value" id="kpi-reg">10</div></div>
+                <div class="kpi"><div class="label">Dias</div><div class="value" id="kpi-dias">2</div></div>
+                <div class="kpi"><div class="label">Média/Dia</div><div class="value" id="kpi-media">0</div></div>
+            </div>
+            <div class="card"><h3>Equipes por Regional</h3><div class="chart-wrap"><canvas id="chartReg"></canvas></div></div>
+            <div class="card"><h3>Equipes por Dia</h3><div class="chart-wrap"><canvas id="chartDia"></canvas></div></div>
+        </div>
+
+        <div class="tab-content" id="tab-teams">
+            <div class="card"><h3>Nomenclatura e Contatos das Equipes</h3><div id="accordion-container"></div></div>
+        </div>
+
+        <div class="tab-content" id="tab-areas">
+            <div class="card"><h3>Sobreavisos - Sábado (8/08)</h3><div id="areas-8"></div></div>
+            <div class="card"><h3>Sobreavisos - Domingo (9/08)</h3><div id="areas-9"></div></div>
+            <div class="card"><h3>Telefones de Emergência</h3><div class="util-grid" id="uteis-container"></div></div>
+        </div>
+    </div>
+
+    <footer>Elaborado por André Felix</footer>
+
+    <script>
+        const DAYS = ['8', '9'];
+        const REGIONAIS = ['ARACAJU NORTE', 'ARACAJU SUL', 'SÃO CRISTÓVÃO', 'ITABAIANA', 'LAGARTO', 'MARUIM', 'SOCORRO', 'GLÓRIA', 'DORES', 'PROPRIÁ'];
+
+        // DIA 8 (Sábado) - 79 equipes
+        const D8 = {
+            'ARACAJU NORTE': ['ARJPS01', 'ARJPS02', 'ARJPS03', 'ARJPS04', 'ARJSB01', 'ARJSB02'],
+            'ARACAJU SUL': ['CTNPS01', 'CTNPS02', 'CTNPS03', 'CTNPS10', 'CTNPS11', 'CTNPS12', 'CTNPS13', 'CTNSB01', 'CTNSB02', 'CTNSN22', 'CTNSN23', 'CTNSN24', 'CTNSN25'],
+            'SÃO CRISTÓVÃO': ['SCTPS01', 'SCTPS02', 'SCTPS03', 'SCTSB01', 'SCTSB02', 'MSQPS01', 'MSQPS02', 'ITPPS01', 'ITPPS02'],
+            'ITABAIANA': ['ITBPS02', 'ITBPS04', 'ITBPS05', 'ITBPS06', 'ITBSB01', 'CJBPS01', 'RIBPS01', 'CRIPS01', 'FRPPS01'],
+            'LAGARTO': ['LGTPS01', 'LGTPS02', 'LGTPS04', 'LGTSB01', 'SLGPS01', 'PVDPS01'],
+            'MARUIM': ['MRIPS02', 'MRIPS04', 'MRIPS05', 'MRIPS06', 'JPTSB01', 'RCHSN02', 'JPTPS03'],
+            'SOCORRO': ['BCQPS02', 'BCQPS04', 'BCQSN01', 'BCQSB01', 'NSSPS01', 'NSSPS02', 'NSSSB01', 'NSSSB02', 'NSSSB05'],
+            'GLÓRIA': ['NSGPS01', 'NSGPS02', 'NSGPS03', 'NSGSB01', 'MTAPS01', 'PDFSB01', 'CNDSB01'],
+            'DORES': ['NSDPS01', 'NSDPS02', 'NSDPS03', 'NSDSB01', 'CPLSB01', 'NSDDC11'],
+            'PROPRIÁ': ['PPRPS01', 'PPRPS03', 'PPRPS04', 'PPRPS06', 'PPRSB01', 'PCTSB01', 'NPLPS02']
+        };
+
+        // DIA 9 (Domingo) - 70 equipes
+        const D9 = {
+            'ARACAJU NORTE': ['ARJPS01', 'ARJPS02', 'ARJPS03', 'ARJPS04', 'ARJSB03', 'ARJSB04'],
+            'ARACAJU SUL': ['CTNPS01', 'CTNPS02', 'CTNPS03', 'CTNPS10', 'CTNPS11', 'CTNPS12', 'CTNPS13', 'CTNSB03', 'CTNSB04', 'CTNSN26', 'CTNSN27'],
+            'SÃO CRISTÓVÃO': ['SCTPS01', 'SCTPS02', 'SCTPS03', 'SCTDC11', 'MSQPS01', 'MSQPS02', 'ITPPS01', 'ITPPS02'],
+            'ITABAIANA': ['ITBPS01', 'ITBPS02', 'ITBPS03', 'ITBPS04', 'ITBSB04', 'CJBPS01', 'RIBPS01', 'CRIPS01', 'FRPPS01'],
+            'LAGARTO': ['LGTPS01', 'LGTPS02', 'LGTPS04', 'SMDSB01', 'SLGPS01', 'PVDPS01'],
+            'MARUIM': ['MRIPS01', 'MRIPS02', 'MRIPS03', 'MRIPS04', 'MRISB02', 'RCHSN02', 'JPTPS03'],
+            'SOCORRO': ['BCQPS02', 'BCQPS04', 'NSSPS01', 'NSSPS02', 'NSSSB03', 'NSSSB04'],
+            'GLÓRIA': ['NSGPS01', 'NSGPS02', 'NSGPS03', 'MTAPS01', 'PDFSB02'],
+            'DORES': ['NSDPS01', 'NSDPS02', 'NSDPS03', 'NSDSB01', 'CPLSB01'],
+            'PROPRIÁ': ['PPRPS02', 'PPRPS03', 'PPRPS05', 'PPRPS06', 'PPRSB01', 'NPLPS02', 'NPLSB01']
+        };
+
+        const UNIAO = {};
+        REGIONAIS.forEach(r => { let s = new Set([...D8[r], ...D9[r]]); UNIAO[r] = [...s]; });
+
+        // TELEFONES DIA 8
+        const TEL8 = {
+            'ARJPS01': ['(79) 99634-6917', '(79) 99839-8900'], 'ARJPS02': ['(79) 98871-2119', '(79) 91786-195'], 'ARJPS03': ['(79) 98817-7191', '(79) 99906-7925'], 'ARJPS04': ['(79) 99634-4380', '(79) 99969-8963'], 'ARJSB01': ['(79) 99840-4466', '(79) 99885-6889'], 'ARJSB02': ['(79) 98554-652', '(79) 99681-5700'],
+            'CTNPS01': ['(79) 99862-0387', '(79) 98875-4067'], 'CTNPS02': ['(79) 98138-6406', '(79) 99676-5672'], 'CTNPS03': ['99848-9053', '(79) 99650-1956'], 'CTNPS10': ['(79) 99121-6464', '(79) 99877-8224'], 'CTNPS11': ['(79) 99860-2761', '(79) 99899-1540'], 'CTNPS12': ['(79) 99931-0216', '(79) 99601-3616'], 'CTNPS13': ['(79) 99106-4664', '(79) 99866-2502'], 'CTNSB01': ['(79) 98857-2184', '(79) 98836-3882'], 'CTNSB02': ['(79) 99999-1965', '(79) 99663-7091'], 'CTNSN22': ['(79) 99549-279', '(79) 91172-062'], 'CTNSN23': ['(79) 99676-2845', '(32) 99823-2825'], 'CTNSN24': ['(79) 99981-2163', '(79) 99964-3028'], 'CTNSN25': ['(79) 99894-6722', '(79) 99841-9495'],
+            'SCTPS01': ['99182-3791', '(79) 99994-745'], 'SCTPS02': ['(79) 98871-3849', '(79) 99634-4427'], 'SCTPS03': ['(79) 88200-320', '(79) 98858-829'], 'SCTSB01': ['(79) 99751-627', '(79) 99649-6389'], 'SCTSB02': ['(79) 96376-403', '(79) 99947-5578'], 'MSQPS01': ['(79) 99900-569', '(79) 99908-4946'], 'MSQPS02': ['(79) 96359-378', '(79) 99829-5173'], 'ITPPS01': ['(75) 99725-652', '(79) 99887-0662'], 'ITPPS02': ['(79) 99632-4528', '(79) 99654-7138'],
+            'ITBPS02': ['(79) 99927-7226', '(79) 99975-6605'], 'ITBPS04': ['(79) 99086-543', '(79) 98730-910'], 'ITBPS05': ['(79) 99964-7054', '(79) 99674-5702'], 'ITBPS06': ['(79) 99937-5899', '(79) 99965-7716'], 'ITBSB01': ['(79) 99690-2441', '(79) 99962-5253'], 'CJBPS01': ['(79) 99946-6747', '(79) 99937-2686'], 'RIBPS01': ['(79) 99865-6394', '(79) 99842-3996'], 'CRIPS01': ['(79) 99653-4414', '(79) 99685-9908'], 'FRPPS01': ['(79) 98112-1683', '(79) 99915-7428'],
+            'LGTPS01': ['(79) 99935-6967', '(79) 99677-4053'], 'LGTPS02': ['(79) 99979-9465', '(79) 99611-7365'], 'LGTPS04': ['(79) 99931-0276', '(79) 99633-0255'], 'LGTSB01': ['(79) 99609-5010', '(79) 99924-8297'], 'SLGPS01': ['(79) 99653-4537', '(79) 99913-0909'], 'PVDPS01': ['(79) 98863-9897', '(79) 99936-8988'],
+            'MRIPS02': ['(79) 98656-914', '(79) 98156-6299'], 'MRIPS04': ['(79) 99663-0898', '(79) 99851-4348'], 'MRIPS05': ['(79) 98131-1668', '(79) 96845-548'], 'MRIPS06': ['(79) 99850-2074', '—'], 'JPTSB01': ['(79) 99926-5223', '(79) 99643-2444'], 'RCHSN02': ['(79) 99904-5244', '(79) 98289-862'], 'JPTPS03': ['(79) 99891-4686', '(79) 99116-2289'],
+            'BCQPS02': ['(79) 99844-2001', '(79) 99934-952'], 'BCQPS04': ['(79) 98881-511', '98470-262'], 'BCQSN01': ['(79) 99959-3926', '(79) 99116-3028'], 'BCQSB01': ['(79) 99931-1695', '—'], 'NSSPS01': ['(79) 99673-8807', '(79) 99977-1385'], 'NSSPS02': ['(79) 99960-5282', '99931-1668'], 'NSSSB01': ['(79) 99654-0543', '(79) 99109-0424'], 'NSSSB02': ['(79) 88799-496', '(79) 99647-571'], 'NSSSB05': ['(79) 99899-1944', '(79) 99863-0999'],
+            'NSGPS01': ['(79) 99814-836', '(79) 99991-7315'], 'NSGPS02': ['(79) 96291-328', '(79) 99876-7697'], 'NSGPS03': ['(79) 98281-340', '(79) 99674-8556'], 'NSGSB01': ['(79) 99684-5221', '(79) 96357-205'], 'MTAPS01': ['(79) 99998-192', '(79) 99850-5030'], 'PDFSB01': ['(79) 99931-1812', '(79) 99628-2659'], 'CNDSB01': ['(79) 99899-2388', '(79) 99870-4525'],
+            'NSDPS01': ['(79) 99925-4227', '(79) 99922-1795'], 'NSDPS02': ['(79) 98359-564', '(79) 99654-0127'], 'NSDPS03': ['(79) 99931-0295', '(79) 96541-775'], 'NSDSB01': ['(79) 99066-593', '(79) 98162-0041'], 'CPLSB01': ['(79) 99600-8127', '—'], 'NSDDC11': ['(79) 99650-1993', '(79) 99604-7176'],
+            'PPRPS01': ['(79) 99811-8818', '(79) 99976-008'], 'PPRPS03': ['(79) 98865-0134', '(79) 99979-5107'], 'PPRPS04': ['(79) 98871-7271', '(79) 99968-1066'], 'PPRPS06': ['(79) 99927-2473', '—'], 'PPRSB01': ['(79) 99954-146', '(79) 99988-7722'], 'PCTSB01': ['(79) 99931-1698', '(79) 99808-3001'], 'NPLPS02': ['(79) 99923-8057', '(79) 99960-9452']
+        };
+
+        // TELEFONES DIA 9
+        const TEL9 = {
+            'ARJPS01': ['(79) 99634-6917', '(79) 99839-8900'], 'ARJPS02': ['(79) 98871-2119', '(79) 91786-195'], 'ARJPS03': ['(79) 98817-7191', '(79) 99906-7925'], 'ARJPS04': ['(79) 99634-4380', '(79) 99969-8963'], 'ARJSB03': ['(79) 99800-3175', '(79) 99911-4702'], 'ARJSB04': ['(79) 99641-4243', '(79) 98849-1255'],
+            'CTNPS01': ['(79) 99862-0387', '(79) 98875-4067'], 'CTNPS02': ['(79) 98138-6406', '(79) 99676-5672'], 'CTNPS03': ['99848-9053', '(79) 99650-1956'], 'CTNPS10': ['(79) 99121-6464', '(79) 99877-8224'], 'CTNPS11': ['(79) 99899-1540', '—'], 'CTNPS12': ['(79) 99931-0216', '(79) 99601-3616'], 'CTNPS13': ['(79) 99106-4664', '(79) 99866-2502'], 'CTNSB03': ['(79) 99805-1427', '(79) 99950-7562'], 'CTNSB04': ['(79) 99815-6370', '(79) 98176-6489'], 'CTNSN26': ['(79) 99916-5790', '(79) 99983-6408'], 'CTNSN27': ['(79) 98843-8391', '(79) 99924-8289'],
+            'SCTPS01': ['(79) 98146-1538', '99182-3791'], 'SCTPS02': ['(79) 99634-4427', '(79) 99832-2309'], 'SCTPS03': ['(79) 99137-4861', '(79) 88200-320'], 'SCTDC11': ['(79) 98841-0531', '(79) 81495-374'], 'MSQPS01': ['(79) 99900-569', '(79) 99908-4946'], 'MSQPS02': ['(79) 96359-378', '(79) 99898-0746'], 'ITPPS01': ['(79) 99643-2609', '(79) 99887-0662'], 'ITPPS02': ['(79) 99751-627', '(79) 99632-4528'],
+            'ITBPS01': ['(79) 99969-8144', '(79) 99626-5794'], 'ITBPS02': ['(79) 99927-7226', '(79) 99975-6605'], 'ITBPS03': ['(79) 99934-5088', '(79) 99937-5899'], 'ITBPS04': ['(79) 99086-543', '(79) 98730-910'], 'ITBSB04': ['(79) 99804-6052', '(79) 99954-1198'], 'CJBPS01': ['(79) 99946-6747', '(79) 99807-3617'], 'RIBPS01': ['(79) 99949-8944', '(79) 99842-3996'], 'CRIPS01': ['(79) 99804-4620', '(79) 99983-9539'], 'FRPPS01': ['(79) 99887-2797', '(79) 98112-1683'],
+            'LGTPS01': ['(79) 99935-6967', '(79) 98115-3366'], 'LGTPS02': ['(79) 99979-9465', '(79) 99986-8462'], 'LGTPS04': ['(79) 99931-0276', '(79) 99609-5010'], 'SMDSB01': ['(79) 99659-3294', '(79) 98194-034'], 'SLGPS01': ['(79) 99876-2765', '(79) 99653-4537'], 'PVDPS01': ['(75) 99951-5042', '(79) 99936-8988'],
+            'MRIPS01': ['(79) 99890-7704', '(79) 99869-6638'], 'MRIPS02': ['(79) 98656-914', '(79) 98156-6299'], 'MRIPS03': ['(79) 99907-6456', '(79) 99942-3665'], 'MRIPS04': ['(79) 99663-0898', '(79) 99851-4348'], 'MRISB02': ['(79) 99812-7548', '(79) 99822-0344'], 'RCHSN02': ['(79) 99626-2436', '(79) 98289-862'], 'JPTPS03': ['(79) 99101-691', '(79) 99116-2289'],
+            'BCQPS02': ['(79) 98133-8534', '(79) 99844-2001'], 'BCQPS04': ['(79) 98881-511', '98470-262'], 'NSSPS01': ['(79) 99673-8807', '(79) 99977-1385'], 'NSSPS02': ['(79) 99960-5282', '99931-1668'], 'NSSSB03': ['(79) 98818-2620', '(79) 99153-8703'], 'NSSSB04': ['(79) 99922-3656', '(79) 99195-7916'],
+            'NSGPS01': ['(79) 99928-3631', '(79) 99991-7315'], 'NSGPS02': ['(79) 99876-7697', '(79) 99805-8400'], 'NSGPS03': ['(79) 99908-2663', '(79) 99674-8556'], 'MTAPS01': ['(79) 99998-192', '(79) 99857-2998'], 'PDFSB02': ['(79) 98187-272', '(79) 96492-974'],
+            'NSDPS01': ['(79) 99925-4227', '(79) 99536-419'], 'NSDPS02': ['(79) 99836-2275', '(79) 98359-564'], 'NSDPS03': ['(79) 99066-593', '(79) 96541-775'], 'NSDSB01': ['(79) 99825-2332', '(79) 99861-1087'], 'CPLSB01': ['(79) 99941-6332', '(79) 99628-4085'],
+            'PPRPS02': ['(79) 99687-7441', '(79) 99611-1149'], 'PPRPS03': ['(79) 98865-0134', '(79) 99979-5107'], 'PPRPS05': ['(79) 98296-146', '(79) 99929-9930'], 'PPRPS06': ['(79) 99927-2473', '—'], 'PPRSB01': ['(79) 99933-3060', '(79) 99922-0292'], 'NPLPS02': ['(79) 99923-8057', '(79) 99960-9452'], 'NPLSB01': ['(79) 99976-008', '—']
+        };
+
+        const A8 = [
+            ['COEC', 'MARCELO SANTANA DE ARAUJO', '(79) 9850-3478'],
+            ['SIPEL', 'MARIA LUIZA', '(74) 99806-2671'],
+            ['ENERGIA BRASIL', 'ERIVALDO DE JESUS VIANA', '(79) 9 9807-6018'],
+            ['COI', 'CARLOS VINICIUS DANTAS CRUZ', '(79) 9 9897-9307'],
+            ['SCADA', 'MARCOS DE ASSIS SANTOS', '(79) 98128-7136'],
+            ['LMDT', 'ROBSON FREITAS DE SOUZA', '(79) 99859-9145'],
+            ['SUBTRANSMISSÃO', 'CASSIANO MICHEL L. DA SILVA', '(79) 98109-8554 / 99605-3812'],
+            ['AUTOMAÇÃO/TELECOM', 'ALEXSANDRO SANTOS DOS ANJOS / ANDRE LUIS QUIRINO DE JESUS', '(79) 99859-9386 / (79) 99973-8925'],
+            ['SESMT', 'ROBERTA / DEMETRIUS', '(79) 99868-4359 / 99951-0333'],
+            ['COMUNICAÇÃO', 'CAMILA / ADRIANA', '(79) 9 8138-3521 / 9 9938-7572'],
+            ['COTR', 'GLEISON FELIX / FELIPE MARTINS', '(79) 98102-4261 / 98146-7364'],
+            ['ASJU', 'ELIDA', '(79) 9 8146-9016']
+        ];
+
+        const A9 = [
+            ['COEC', 'BRUNO ARAUJO VASCONCELOS', '(79) 9 9811-7196'],
+            ['SIPEL', 'MARIA LUIZA', '(74) 99806-2671'],
+            ['ENERGIA BRASIL', 'ERIVALDO DE JESUS VIANA', '(79) 9 9807-6018'],
+            ['COI', 'LETICIA DANIELLE SANTOS DE MELO', '(79) 98146-2865'],
+            ['SCADA', 'RAUL LIMA SOUSA DA CRUZ', '(83) 99167-0863'],
+            ['LMDT', 'VAGNE PINTO DOS SANTOS', '(79) 98105-9991'],
+            ['SUBTRANSMISSÃO', 'JOELSON LEMOS CORREA', '99931-0220'],
+            ['AUTOMAÇÃO/TELECOM', 'GLEYDSON RODRIGUES MARTINS / NILTON OLIVEIRA DANTAS', '(79) 99931-0243 / (79) 99829-2124'],
+            ['SESMT', 'ROBERTA / DEMETRIUS', '(79) 99868-4359 / 99951-0333'],
+            ['COMUNICAÇÃO', 'CAMILA / ADRIANA', '(79) 9 8138-3521 / 9 9938-7572'],
+            ['COTR', 'GLEISON FELIX / FELIPE MARTINS', '(79) 98102-4261 / 98146-7364'],
+            ['ASJU', 'ELIDA', '(79) 9 8146-9016']
+        ];
+
+        const UT = [
+            ['SMTT', '3249-3333'], ['BOMBEIROS', '193'], ['PM', '190'], ['DH', '100'],
+            ['PRF', '191'], ['PRE', '198'], ['PROCON', '151'], ['DEFESA CIVIL', '199'],
+            ['SAMU', '192'], ['REC.FED.', '146'], ['MULHER', '180'], ['MIN.PUB.', '127'],
+            ['CVV', '188'], ['TELEMAR', '(79) 98871-0272']
+        ];
+
+        let day = 'all', charts = {};
+
+        function getTelSrc(d) { return d === '8' ? TEL8 : (d === '9' ? TEL9 : TEL8); }
+
+        function atualizar() {
+            const total = day === 'all' ? 149 : (day === '8' ? 79 : 70);
+            const ativas = day === 'all' ? REGIONAIS.filter(r => D8[r].length > 0 || D9[r].length > 0).length : (day === '8' ? REGIONAIS.filter(r => D8[r].length > 0).length : REGIONAIS.filter(r => D9[r].length > 0).length);
+            const dias = day === 'all' ? 2 : 1;
+            document.getElementById('kpi-total').textContent = total;
+            document.getElementById('kpi-reg').textContent = ativas;
+            document.getElementById('kpi-dias').textContent = dias;
+            document.getElementById('kpi-media').textContent = Math.round(total / dias);
+            const vals = day === 'all' ? REGIONAIS.map(r => D8[r].length + D9[r].length) : (day === '8' ? REGIONAIS.map(r => D8[r].length) : REGIONAIS.map(r => D9[r].length));
+            const tdias = day === 'all' ? [79, 70] : (day === '8' ? [79] : [70]);
+            Object.values(charts).forEach(c => c && c.destroy()); charts = {};
+            charts.r = new Chart(document.getElementById('chartReg'), { type: 'bar', data: { labels: REGIONAIS, datasets: [{ data: vals, backgroundColor: '#F59E0B', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
+            charts.d = new Chart(document.getElementById('chartDia'), { type: 'bar', data: { labels: ['Sáb 8', 'Dom 9'], datasets: [{ data: tdias, backgroundColor: '#D3D722', borderRadius: 6 }] }, options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } } });
+            renderAccordion();
+        }
+
+        function renderAccordion() {
+            const c = document.getElementById('accordion-container'); c.innerHTML = '';
+            const src = day === 'all' ? UNIAO : (day === '8' ? D8 : D9);
+            const telSrc = getTelSrc(day);
+            REGIONAIS.forEach(r => {
+                const codes = src[r] || []; if (codes.length === 0) return;
+                const sb = codes.filter(c => c.includes('SB')), esc = codes.filter(c => !c.includes('SB'));
+                let h = '<div class="accordion-item"><div class="accordion-header" onclick="this.parentElement.classList.toggle(\'open\')"><span>' + r + ' (' + codes.length + ' equipes)</span><span>▼</span></div><div class="accordion-body"><div class="dual-grid">';
+                h += '<div><div class="col-title">SB</div><div class="nom-grid">' + sb.map(cd => { const t = telSrc[cd] || ['Sem número', 'Sem número']; return '<div class="nom-cell"><div class="code">' + cd + '</div><div class="tel">Número 1: ' + t[0] + '<br>Número 2: ' + t[1] + '</div></div>'; }).join('') + '</div></div>';
+                h += '<div><div class="col-title">Escala</div><div class="nom-grid">' + esc.map(cd => { const t = telSrc[cd] || ['Sem número', 'Sem número']; return '<div class="nom-cell"><div class="code">' + cd + '</div><div class="tel">Número 1: ' + t[0] + '<br>Número 2: ' + t[1] + '</div></div>'; }).join('') + '</div></div>';
+                h += '</div></div></div>'; c.innerHTML += h;
+            });
+        }
+
+        document.querySelectorAll('.tab').forEach(t => t.addEventListener('click', () => {
+            document.querySelectorAll('.tab,.tab-content').forEach(el => el.classList.remove('active'));
+            t.classList.add('active');
+            document.getElementById('tab-' + t.dataset.tab).classList.add('active');
+            document.getElementById('filter-bar').style.display = t.dataset.tab === 'areas' ? 'none' : 'flex';
+        }));
+
+        document.querySelectorAll('.filter-btn').forEach(b => b.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(el => el.classList.remove('active'));
+            b.classList.add('active');
+            day = b.dataset.day;
+            atualizar();
+        }));
+
+        document.getElementById('areas-8').innerHTML = '<table><thead><tr><th>Área</th><th>Responsável</th><th>Telefone</th></tr></thead><tbody>' + A8.map(r => '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td></tr>').join('') + '</tbody></table>';
+        document.getElementById('areas-9').innerHTML = '<table><thead><tr><th>Área</th><th>Responsável</th><th>Telefone</th></tr></thead><tbody>' + A9.map(r => '<tr><td>' + r[0] + '</td><td>' + r[1] + '</td><td>' + r[2] + '</td></tr>').join('') + '</tbody></table>';
+        document.getElementById('uteis-container').innerHTML = UT.map(u => '<div class="util-box"><div class="nome">' + u[0] + '</div><div class="fone">' + u[1] + '</div></div>').join('');
+        atualizar();
+    </script>
+</body>
+</html>
