@@ -42,10 +42,6 @@ td{padding:12px;border:1px solid #e5e7eb}
 .nom-cell{background:#f9fafb;border-radius:8px;padding:12px;border-left:4px solid #0FABCC}
 .nom-cell .code{font-weight:800;color:#111827;font-size:14px}
 .nom-cell .tel{font-size:12px;color:#4b5563;margin-top:6px;line-height:1.5}
-.util-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
-.util-box{background:#f9fafb;padding:15px;border-radius:10px;border:1px solid #e5e7eb;text-align:center}
-.util-box .nome{font-size:11px;font-weight:800;color:#6b7280;text-transform:uppercase}
-.util-box .fone{font-size:15px;font-weight:800;color:#0FABCC;margin-top:6px}
 .sobreaviso-img{width:100%;border-radius:12px;cursor:zoom-in;display:block;border:1px solid #e5e7eb;transition:opacity .2s}
 .sobreaviso-img:hover{opacity:.92}
 .sobreaviso-placeholder{color:#9ca3af;font-size:13px;padding:20px;text-align:center;border:1px dashed #e5e7eb;border-radius:12px}
@@ -77,7 +73,7 @@ footer{text-align:right;padding:30px;color:#9ca3af;font-size:13px;font-weight:60
 <div class="tabs">
 <button class="tab active" data-tab="overview">Visão Geral</button>
 <button class="tab" data-tab="teams">Equipes por Dia</button>
-<button class="tab" data-tab="areas">Demais Áreas</button>
+<button class="tab" data-tab="areas">Sobreavisos de Final de Semana</button>
 </div>
 <div class="filters" id="filter-bar">
 <div style="width:100%">
@@ -105,7 +101,6 @@ footer{text-align:right;padding:30px;color:#9ca3af;font-size:13px;font-weight:60
 <div class="tab-content" id="tab-areas">
 <div class="card"><h3>Sobreaviso — Sábado</h3><img src="sobreavisos/sabado.png" alt="Sobreaviso Sábado" class="sobreaviso-img" onclick="openLightbox(this)" onerror="console.warn('Sobreaviso não encontrado: sobreavisos/sabado.png');this.outerHTML='<div class=&quot;sobreaviso-placeholder&quot;>Sobreaviso de Sábado não encontrado</div>'"></div>
 <div class="card"><h3>Sobreaviso — Domingo</h3><img src="sobreavisos/domingo.png" alt="Sobreaviso Domingo" class="sobreaviso-img" onclick="openLightbox(this)" onerror="console.warn('Sobreaviso não encontrado: sobreavisos/domingo.png');this.outerHTML='<div class=&quot;sobreaviso-placeholder&quot;>Sobreaviso de Domingo não encontrado</div>'"></div>
-<div class="card"><h3>Telefones de Emergência</h3><div class="util-grid" id="uteis-container"></div></div>
 </div>
 </div>
 </div>
@@ -129,7 +124,6 @@ const REGIONAIS = Object.values(REGIONAL_MAP);
 const DIAS_SEMANA = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
 const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const TURNOS = ['00h-09h','04h-13h','06h-15h','07h30-17h30','10h-20h','12h-22h','15h-00h','SOBREAVISO'];
-const UT = [['SMTT','3249-3333'],['BOMBEIROS','193'],['PM','190'],['DH','100'],['PRF','191'],['PRE','198'],['PROCON','151'],['DEFESA CIVIL','199'],['SAMU','192'],['REC.FED.','146'],['MULHER','180'],['MIN.PUB.','127'],['CVV','188'],['TELEMAR','(79) 98871-0272']];
 let DATA = {};
 let selectedDays = new Set();
 let charts = {};
@@ -242,9 +236,8 @@ if (total > 0) {
 const p = days[0].split('-');
 rotulo = MESES[parseInt(p[1],10) - 1] + '/' + p[0];
 }
-document.getElementById('header-dates').textContent = selectedDays.size === total
-? rotulo + ' (' + total + ' dias)'
-: rotulo + ' (' + selectedDays.size + ' dia(s))';
+const n = selectedDays.size;
+document.getElementById('header-dates').textContent = rotulo + ' • ' + n + '/' + total + ' dias';
 }
 function atualizar() {
 const days = Array.from(selectedDays).sort();
@@ -328,7 +321,6 @@ document.getElementById('tab-' + t.dataset.tab).classList.add('active');
 }));
 document.getElementById('btn-all-days').addEventListener('click', () => { selectedDays = new Set(Object.keys(DATA)); renderDayChecks(); atualizar(); });
 document.getElementById('btn-none-days').addEventListener('click', () => { selectedDays = new Set(); renderDayChecks(); atualizar(); });
-document.getElementById('uteis-container').innerHTML = UT.map(u => '<div class="util-box"><div class="nome">' + u[0] + '</div><div class="fone">' + u[1] + '</div></div>').join('');
 function openLightbox(img) {
 document.getElementById('lightbox-img').src = img.src;
 document.getElementById('lightbox').style.display = 'flex';
