@@ -224,9 +224,16 @@ lab.textContent = fmtData(d) + ' — ' + diaSemana(d);
 if (selectedDays.has(d)) lab.classList.add('checked');
 lab.innerHTML += '<input type="checkbox" ' + (selectedDays.has(d) ? 'checked' : '') + ' data-day="' + d + '">';
 lab.querySelector('input').addEventListener('change', function () {
-if (this.checked) { selectedDays.add(d); lab.classList.add('checked'); }
-else { selectedDays.delete(d); lab.classList.remove('checked'); }
-atualizar();
+  if (this.checked) {
+    selectedDays.add(d);
+    lab.classList.add('checked');
+  } else {
+    selectedDays.delete(d);
+    lab.classList.remove('checked');
+  }
+
+  renderDayChecks();
+  atualizar();
 });
 c.appendChild(lab);
 });
