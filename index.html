@@ -231,7 +231,6 @@ lab.querySelector('input').addEventListener('change', function () {
     selectedDays.delete(d);
     lab.classList.remove('checked');
   }
-
   renderDayChecks();
   atualizar();
 });
@@ -319,12 +318,12 @@ function renderAccordion(days) {
         ? t.map((x, i) => 'Número ' + (i + 1) + ': ' + x).join('<br>')
         : 'Sem número';
       return '<div class="nom-cell"><div class="code">' + eq + '</div>' +
-        '<div class="tel"><b>Turnos Identificados:</b><br>' + horarios + '</div>' +
-        '<div class="tel"><b>Telefone:</b><br>' + telefones + '</div></div>';
+        '<div class="tel"><b>🕒 Turnos Identificados:</b><br>' + horarios + '</div>' +
+        '<div class="tel"><b>📞 Telefone:</b><br>' + telefones + '</div></div>';
     }
-    let h = '<div class="accordion-item"><div class="accordion-header" onclick="this.parentElement.classList.toggle(\'open\')"><span>' + reg + ' (' + codes.length + ' equipes)</span><span>▼</span></div><div class="accordion-body"><div class="dual-grid">';
-    h += '<div><div class="col-title">SB</div><div class="nom-grid">' + sb.map(cell).join('') + '</div></div>';
-    h += '<div><div class="col-title">Escala</div><div class="nom-grid">' + esc.map(cell).join('') + '</div></div>';
+    let h = '<div class="accordion-item"><div class="accordion-header" onclick="this.parentElement.classList.toggle(\'open\')"><span>📍 ' + reg + ' (' + codes.length + ' equipes)</span><span>▼</span></div><div class="accordion-body"><div class="dual-grid">';
+    h += '<div><div class="col-title">🚨 Equipes de Sobreaviso</div><div class="nom-grid">' + sb.map(cell).join('') + '</div></div>';
+    h += '<div><div class="col-title">👷 Escala</div><div class="nom-grid">' + esc.map(cell).join('') + '</div></div>';
     h += '</div></div></div>';
     c.innerHTML += h;
   });
